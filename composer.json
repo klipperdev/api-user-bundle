@@ -14,7 +14,12 @@
     "require": {
         "php": "^7.4.0",
         "klipper/api-bundle": "^2.0.0",
+        "klipper/content-bundle": "^2.0.0",
         "klipper/user-bundle": "^2.0.0"
+    },
+    "require-dev": {
+        "klipper/api-security-bundle": "^2.0.0",
+        "klipper/security-oauth-bundle": "^2.0.0"
     },
     "autoload": {
         "psr-4": { "Klipper\\Bundle\\ApiUserBundle\\": "" },
