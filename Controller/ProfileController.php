@@ -15,8 +15,7 @@ use Klipper\Bundle\ApiBundle\Action\Update;
 use Klipper\Bundle\ApiBundle\Controller\ControllerHelper;
 use Klipper\Bundle\ApiBundle\Exception\InvalidArgumentException;
 use Klipper\Bundle\ApiBundle\ViewGroups;
-use Klipper\Component\Content\Downloader\DownloaderInterface;
-use Klipper\Component\Content\Uploader\UploaderInterface;
+use Klipper\Component\Content\ContentManagerInterface;
 use Klipper\Component\Metadata\MetadataManagerInterface;
 use Klipper\Component\Security\Model\UserInterface;
 use Klipper\Component\SecurityOauth\Scope\ScopeVote;
@@ -85,13 +84,13 @@ class ProfileController
      *
      * @Route("/profile/upload", methods={"POST"})
      */
-    public function uploadImage(ControllerHelper $helper, UploaderInterface $uploader): Response
+    public function uploadImage(ControllerHelper $helper, ContentManagerInterface $contentManager): Response
     {
         if (class_exists(ScopeVote::class)) {
             $helper->denyAccessUnlessGranted(new ScopeVote('meta/user'));
         }
 
-        return $uploader->upload('user_profile_image');
+        return $contentManager->upload('user_profile_image');
     }
 
     /**
@@ -102,7 +101,7 @@ class ProfileController
     public function downloadImage(
         ControllerHelper $helper,
         TokenStorageInterface $tokenStorage,
-        DownloaderInterface $downloader
+        ContentManagerInterface $contentManager
     ): Response {
         $profile = $this->getCurrentProfile($helper, $tokenStorage);
 
@@ -110,7 +109,8 @@ class ProfileController
             $helper->denyAccessUnlessGranted(new ScopeVote(['meta/user', 'meta/user.readonly'], false));
         }
 
-        return $downloader->downloadImage(
+        return $contentManager->downloadImage(
+            'user_profile_image',
             $profile->getImagePath(),
             $profile->getFullName() ?? $profile->getUsername()
         );
