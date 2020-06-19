@@ -84,13 +84,18 @@ class ProfileController
      *
      * @Route("/profile/upload", methods={"POST"})
      */
-    public function uploadImage(ControllerHelper $helper, ContentManagerInterface $contentManager): Response
-    {
+    public function uploadImage(
+        ControllerHelper $helper,
+        ContentManagerInterface $contentManager,
+        TokenStorageInterface $tokenStorage
+    ): Response {
         if (class_exists(ScopeVote::class)) {
             $helper->denyAccessUnlessGranted(new ScopeVote('meta/user'));
         }
 
-        return $contentManager->upload('user_profile_image');
+        $profile = $this->getCurrentProfile($helper, $tokenStorage);
+
+        return $contentManager->upload('user_profile_image', $profile);
     }
 
     /**

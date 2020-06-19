@@ -13,7 +13,9 @@ namespace Klipper\Bundle\ApiUserBundle\DependencyInjection;
 
 use Klipper\Bundle\ApiBundle\Util\ControllerDefinitionUtil;
 use Klipper\Bundle\ApiUserBundle\Controller\ProfileController;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
@@ -21,8 +23,14 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class KlipperApiUserExtension extends Extension
 {
+    /**
+     * @throws
+     */
     public function load(array $configs, ContainerBuilder $container): void
     {
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('profile_listener.xml');
+
         ControllerDefinitionUtil::set($container, ProfileController::class);
     }
 }
