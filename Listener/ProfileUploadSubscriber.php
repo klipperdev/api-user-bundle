@@ -11,6 +11,7 @@
 
 namespace Klipper\Bundle\ApiUserBundle\Listener;
 
+use Klipper\Component\Content\ImageManipulator\Cache\CacheInterface;
 use Klipper\Component\Content\Uploader\Event\UploadFileCompletedEvent;
 use Klipper\Component\Content\Util\ContentUtil;
 use Klipper\Component\Resource\Domain\DomainManagerInterface;
@@ -26,13 +27,17 @@ class ProfileUploadSubscriber implements EventSubscriberInterface
 {
     private DomainManagerInterface $domainManager;
 
+    private ?CacheInterface $imageManipulatorCache;
+
     private Filesystem $fs;
 
     public function __construct(
         DomainManagerInterface $domainManager,
+        ?CacheInterface $imageManipulatorCache = null,
         ?Filesystem $fs = null
     ) {
         $this->domainManager = $domainManager;
+        $this->imageManipulatorCache = $imageManipulatorCache;
         $this->fs = $fs ?? new Filesystem();
     }
 
@@ -70,6 +75,16 @@ class ProfileUploadSubscriber implements EventSubscriberInterface
 
         try {
             $this->fs->remove(ContentUtil::getAbsolutePath($event->getConfig(), $previousFile));
+        } catch (\Throwable $e) {
+            // no check to optimize request to delete file, so do nothing on error
+        }
+
+        try {
+            if (null !== $this->imageManipulatorCache) {
+                $this->imageManipulatorCache->clear(
+                    ContentUtil::getAbsolutePath($event->getConfig(), $previousFile)
+                );
+            }
         } catch (\Throwable $e) {
             // no check to optimize request to delete file, so do nothing on error
         }
