@@ -12,5 +12,13 @@
             <argument>user_profile_image</argument>
             <argument>Klipper\Component\User\Model\ProfileInterface</argument>
         </service>
+
+        <service id="klipper_api_user.image_path_upload_listener_config.organization"
+                 class="Klipper\Bundle\ApiBundle\Uploader\ImagePathUploadListenerConfig"
+                 public="false">
+            <tag name="klipper_api.listener.image_path_upload_config" />
+            <argument>organization_image</argument>
+            <argument>Klipper\Component\Security\Model\OrganizationInterface</argument>
+        </service>
     </services>
 </container>
