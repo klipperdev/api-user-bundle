@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="klipper_api_user.image_path_upload_listener_config.profile"
+                 class="Klipper\Bundle\ApiBundle\Uploader\ImagePathUploadListenerConfig"
+                 public="false">
+            <tag name="klipper_api.listener.image_path_upload_config" />
+            <argument>user_profile_image</argument>
+            <argument>Klipper\Component\User\Model\ProfileInterface</argument>
+        </service>
+    </services>
+</container>
