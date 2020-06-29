@@ -9,5 +9,17 @@
             <tag name="form.type" />
             <argument type="service" id="klipper_security.organizational_context" />
         </service>
+
+        <service id="Klipper\Bundle\ApiUserBundle\Form\Type\CreateOrganizationUserType">
+            <tag name="form.type" />
+            <argument type="service" id="klipper_security.organizational_context" />
+            <argument type="service" id="klipper_resource.domain_manager" />
+            <argument type="service" id="klipper_metadata.manager" />
+        </service>
+
+        <service id="Klipper\Bundle\ApiUserBundle\Form\Type\CreateUserType">
+            <tag name="form.type" />
+            <argument type="service" id="klipper_metadata.manager" />
+        </service>
     </services>
 </container>
