@@ -12,6 +12,7 @@
 namespace Klipper\Bundle\ApiUserBundle\DependencyInjection;
 
 use Klipper\Bundle\ApiBundle\Util\ControllerDefinitionUtil;
+use Klipper\Bundle\ApiUserBundle\Controller\ConnectedUserController;
 use Klipper\Bundle\ApiUserBundle\Controller\OrganizationController;
 use Klipper\Bundle\ApiUserBundle\Controller\ProfileController;
 use Klipper\Bundle\ApiUserBundle\Controller\UserController;
@@ -37,5 +38,6 @@ class KlipperApiUserExtension extends Extension
         ControllerDefinitionUtil::set($container, UserController::class);
         ControllerDefinitionUtil::set($container, ProfileController::class);
         ControllerDefinitionUtil::set($container, OrganizationController::class);
+        ControllerDefinitionUtil::set($container, ConnectedUserController::class);
     }
 }
