@@ -15,6 +15,7 @@ use Klipper\Bundle\ApiBundle\Action\Update;
 use Klipper\Bundle\ApiBundle\Controller\ControllerHelper;
 use Klipper\Bundle\ApiBundle\Exception\InvalidArgumentException;
 use Klipper\Bundle\ApiBundle\ViewGroups;
+use Klipper\Bundle\ApiUserBundle\User\ChangePasswordHelper;
 use Klipper\Component\Metadata\MetadataManagerInterface;
 use Klipper\Component\Security\Model\UserInterface;
 use Klipper\Component\SecurityOauth\Scope\ScopeVote;
@@ -75,6 +76,23 @@ class UserController
             $formType,
             $this->getCurrentUser($helper, $tokenStorage)
         ));
+    }
+
+    /**
+     * Update the password of current user.
+     *
+     * @Route("/user/change-password", methods={"PATCH"})
+     */
+    public function changePassword(
+        ControllerHelper $helper,
+        TokenStorageInterface $tokenStorage,
+        ChangePasswordHelper $changePasswordHelper
+    ): Response {
+        if (class_exists(ScopeVote::class)) {
+            $helper->denyAccessUnlessGranted(new ScopeVote('meta/user'));
+        }
+
+        return $changePasswordHelper->process($this->getCurrentUser($helper, $tokenStorage));
     }
 
     private function getCurrentUser(

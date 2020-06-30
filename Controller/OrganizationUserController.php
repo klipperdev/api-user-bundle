@@ -17,6 +17,7 @@ use Klipper\Bundle\ApiBundle\Controller\Action\Listener\FormPostSubmitListenerIn
 use Klipper\Bundle\ApiBundle\Controller\ControllerHelper;
 use Klipper\Bundle\ApiBundle\Exception\InvalidArgumentException;
 use Klipper\Bundle\ApiUserBundle\Form\Type\CreateOrganizationUserType;
+use Klipper\Bundle\ApiUserBundle\User\ChangePasswordHelper;
 use Klipper\Component\Content\ContentManagerInterface;
 use Klipper\Component\Metadata\MetadataManagerInterface;
 use Klipper\Component\Security\Model\OrganizationUserInterface;
@@ -149,6 +150,37 @@ class OrganizationUserController
             $formType,
             $user->getProfile()
         ));
+    }
+
+    /**
+     * Change the password of a organization user.
+     *
+     * @Entity(
+     *     "id",
+     *     class="App:OrganizationUser",
+     *     expr="repository.findOrganizationUserById(id)"
+     * )
+     *
+     * @Route("/organization_users/{id}/change-password", methods={"PATCH"})
+     *
+     * @Security("is_granted('perm:update', id)")
+     */
+    public function changePassword(
+        ControllerHelper $helper,
+        ChangePasswordHelper $changePasswordHelper,
+        OrganizationUserInterface $id
+    ): Response {
+        if (class_exists(ScopeVote::class)) {
+            $helper->denyAccessUnlessGranted(new ScopeVote('meta/organization_user'));
+        }
+
+        $user = $id->getUser();
+
+        if (!$user instanceof ProfileableInterface) {
+            throw $helper->createNotFoundException();
+        }
+
+        return $changePasswordHelper->process($user);
     }
 
     /**
