@@ -133,13 +133,13 @@ class ConnectedUserController
             ->setParameter('userId', $id)
         ;
 
-        $users = $this->addWhereConnectedFilter($qb, $user)->getQuery()->getResult();
+        $user = $this->addWhereConnectedFilter($qb, $user)->getQuery()->getOneOrNullResult();
 
-        if (empty($users)) {
+        if (null === $user) {
             throw $helper->createNotFoundException();
         }
 
-        return $users[0];
+        return $user;
     }
 
     private function addWhereConnectedFilter(QueryBuilder $qb, UserInterface $user): QueryBuilder
