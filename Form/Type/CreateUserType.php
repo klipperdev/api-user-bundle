@@ -14,9 +14,7 @@ namespace Klipper\Bundle\ApiUserBundle\Form\Type;
 use Klipper\Bundle\ApiBundle\Form\Type\ObjectMetadataType;
 use Klipper\Component\Metadata\MetadataManagerInterface;
 use Klipper\Component\Security\Model\UserInterface;
-use Klipper\Component\User\Model\ProfileInterface;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Exception\InvalidArgumentException;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -37,12 +35,6 @@ class CreateUserType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $profileMeta = $this->metadataManager->get(ProfileInterface::class);
-
-        if (null === $profileMeta->getFormType()) {
-            throw new InvalidArgumentException('The form type must be defined in the metadata of profile model');
-        }
-
         if (!$builder->has('password')) {
             $builder->add('password', PasswordType::class, [
                 'mapped' => false,
@@ -55,8 +47,6 @@ class CreateUserType extends AbstractType
                 ],
             ]);
         }
-
-        $builder->add('profile', $profileMeta->getFormType(), $profileMeta->getFormOptions());
     }
 
     public function configureOptions(OptionsResolver $resolver): void

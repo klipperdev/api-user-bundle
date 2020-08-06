@@ -23,7 +23,6 @@ use Klipper\Component\Metadata\MetadataManagerInterface;
 use Klipper\Component\Security\Model\OrganizationUserInterface;
 use Klipper\Component\Security\Model\UserInterface;
 use Klipper\Component\SecurityOauth\Scope\ScopeVote;
-use Klipper\Component\User\Model\ProfileInterface;
 use Klipper\Component\User\Model\Traits\ProfileableInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -110,49 +109,6 @@ class OrganizationUserController
     }
 
     /**
-     * Update a user profile for the organization.
-     *
-     * @Entity(
-     *     "id",
-     *     class="App:OrganizationUser",
-     *     expr="repository.findOrganizationUserById(id)"
-     * )
-     *
-     * @Route("/organization_users/{id}/profile", methods={"PATCH"})
-     *
-     * @Security("is_granted('perm:update', id)")
-     */
-    public function updateProfile(
-        ControllerHelper $helper,
-        MetadataManagerInterface $metadataManager,
-        OrganizationUserInterface $id
-    ): Response {
-        if (class_exists(ScopeVote::class)) {
-            $helper->denyAccessUnlessGranted(new ScopeVote('meta/organization_user'));
-        }
-
-        $user = $id->getUser();
-
-        if (!$user instanceof ProfileableInterface) {
-            throw $helper->createNotFoundException();
-        }
-
-        $meta = $metadataManager->get(ProfileInterface::class);
-
-        if (null === $formType = $meta->getFormType()) {
-            throw new InvalidArgumentException(sprintf(
-                'The metadata form type of the "%s" class is required to edit the user info of organization user profile',
-                $meta->getClass()
-            ));
-        }
-
-        return $helper->update(Update::build(
-            $formType,
-            $user->getProfile()
-        ));
-    }
-
-    /**
      * Change the password of a organization user.
      *
      * @Entity(
@@ -184,7 +140,7 @@ class OrganizationUserController
     }
 
     /**
-     * Upload a profile image for the organization user.
+     * Upload a user image for the organization user.
      *
      * @Entity(
      *     "id",
@@ -192,7 +148,7 @@ class OrganizationUserController
      *     expr="repository.findOrganizationUserById(id)"
      * )
      *
-     * @Route("/organization_users/{id}/profile/upload", methods={"POST"})
+     * @Route("/organization_users/{id}/user/upload", methods={"POST"})
      *
      * @Security("is_granted('perm:update', id)")
      */
@@ -207,10 +163,10 @@ class OrganizationUserController
 
         $user = $id->getUser();
 
-        if (!$user instanceof ProfileableInterface || null === $user->getProfile()) {
+        if (!$user instanceof ProfileableInterface) {
             throw $helper->createNotFoundException();
         }
 
-        return $contentManager->upload('user_profile_image', $user->getProfile());
+        return $contentManager->upload('user_image', $user);
     }
 }

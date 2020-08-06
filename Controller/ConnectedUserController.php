@@ -50,8 +50,7 @@ class ConnectedUserController
         SqlFilterUtil::disableFilters($em, ['userable', 'organization']);
         $repo = $domainManager->get(UserInterface::class)->getRepository();
         $qb = $repo->createQueryBuilder('u')
-            ->select('u, p')
-            ->leftJoin('u.profile', 'p')
+            ->select('u')
             ->orderBy('p.firstName', 'ASC')
             ->addOrderBy('p.lastName', 'ASC')
             ->addOrderBy('u.username', 'ASC')
@@ -82,7 +81,7 @@ class ConnectedUserController
      *
      * @param int|string $id
      *
-     * @Route("/connected_users/{id}/profile.{ext}", methods={"GET"})
+     * @Route("/connected_users/{id}/user.{ext}", methods={"GET"})
      */
     public function downloadProfileImage(
         ControllerHelper $helper,
@@ -92,14 +91,12 @@ class ConnectedUserController
         ContentManagerInterface $contentManager,
         $id
     ): Response {
-        /** @var ProfileableInterface $user */
         $user = $this->getSelectedUser($helper, $tokenStorage, $domainManager, $em, $id);
-        $profile = $user->getProfile();
 
         return $contentManager->downloadImage(
-            'user_profile_image',
-            $profile->getImagePath(),
-            $profile->getFullName() ?? $profile->getUsername()
+            'user_image',
+            $user->getImagePath(),
+            $user->getFullName() ?? $user->getUsername()
         );
     }
 
@@ -110,6 +107,8 @@ class ConnectedUserController
      *
      * @throws NotFoundHttpException
      * @throws AccessDeniedException
+     *
+     * @return ProfileableInterface|UserInterface
      */
     public function getSelectedUser(
         ControllerHelper $helper,
@@ -126,8 +125,7 @@ class ConnectedUserController
         SqlFilterUtil::disableFilters($em, ['userable', 'organization']);
         $repo = $domainManager->get(UserInterface::class)->getRepository();
         $qb = $repo->createQueryBuilder('u')
-            ->select('u, p')
-            ->leftJoin('u.profile', 'p')
+            ->select('u')
             ->where('u.id = :userId')
             ->setMaxResults(1)
             ->setParameter('userId', $id)
@@ -135,7 +133,7 @@ class ConnectedUserController
 
         $user = $this->addWhereConnectedFilter($qb, $user)->getQuery()->getOneOrNullResult();
 
-        if (null === $user) {
+        if (null === $user || !$user instanceof ProfileableInterface) {
             throw $helper->createNotFoundException();
         }
 
@@ -164,6 +162,9 @@ class ConnectedUserController
         ;
     }
 
+    /**
+     * @return ProfileableInterface|UserInterface
+     */
     private function getCurrentUser(
         ControllerHelper $helper,
         TokenStorageInterface $tokenStorage
@@ -172,8 +173,7 @@ class ConnectedUserController
         $user = null !== $token ? $token->getUser() : null;
 
         if (!$user instanceof UserInterface
-            || !$user instanceof ProfileableInterface
-            || null === $user->getProfile()) {
+            || !$user instanceof ProfileableInterface) {
             throw $helper->createNotFoundException();
         }
 

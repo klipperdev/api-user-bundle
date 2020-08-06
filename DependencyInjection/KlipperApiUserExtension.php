@@ -15,7 +15,6 @@ use Klipper\Bundle\ApiBundle\Util\ControllerDefinitionUtil;
 use Klipper\Bundle\ApiUserBundle\Controller\ConnectedUserController;
 use Klipper\Bundle\ApiUserBundle\Controller\OrganizationController;
 use Klipper\Bundle\ApiUserBundle\Controller\OrganizationUserController;
-use Klipper\Bundle\ApiUserBundle\Controller\ProfileController;
 use Klipper\Bundle\ApiUserBundle\Controller\UserController;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -38,7 +37,6 @@ class KlipperApiUserExtension extends Extension
         $loader->load('form.xml');
 
         ControllerDefinitionUtil::set($container, UserController::class);
-        ControllerDefinitionUtil::set($container, ProfileController::class);
         ControllerDefinitionUtil::set($container, OrganizationController::class);
         ControllerDefinitionUtil::set($container, OrganizationUserController::class);
         ControllerDefinitionUtil::set($container, ConnectedUserController::class);

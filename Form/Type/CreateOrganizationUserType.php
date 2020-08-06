@@ -17,8 +17,6 @@ use Klipper\Component\Resource\Domain\DomainManagerInterface;
 use Klipper\Component\Security\Model\OrganizationUserInterface;
 use Klipper\Component\Security\Model\UserInterface;
 use Klipper\Component\Security\Organizational\OrganizationalContextInterface;
-use Klipper\Component\User\Model\ProfileInterface;
-use Klipper\Component\User\Model\Traits\ProfileableInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -52,7 +50,6 @@ class CreateOrganizationUserType extends AbstractType
         $data = $builder->getData();
         $this->addOrganization($data);
         $this->addUser($data);
-        $this->addProfile($data->getUser());
 
         $userMeta = $this->metadataManager->get(UserInterface::class);
 
@@ -92,15 +89,6 @@ class CreateOrganizationUserType extends AbstractType
             /** @var UserInterface $user */
             $user = $this->domainManager->get(UserInterface::class)->newInstance();
             $data->setUser($user);
-        }
-    }
-
-    private function addProfile(UserInterface $data): void
-    {
-        if ($data instanceof ProfileableInterface && null === $data->getProfile()) {
-            /** @var ProfileInterface $profile */
-            $profile = $this->domainManager->get(ProfileInterface::class)->newInstance();
-            $data->setProfile($profile);
         }
     }
 }
