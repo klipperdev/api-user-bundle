@@ -14,7 +14,6 @@ namespace Klipper\Bundle\ApiUserBundle\Form\Type;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -25,8 +24,8 @@ class ChangePasswordType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        if ($options['old_password']) {
-            $builder->add('old_password', PasswordType::class, [
+        $builder
+            ->add('old_password', PasswordType::class, [
                 'mapped' => false,
                 'required' => true,
                 'constraints' => [
@@ -36,10 +35,7 @@ class ChangePasswordType extends AbstractType
                         'max' => 4096,
                     ]),
                 ],
-            ]);
-        }
-
-        $builder
+            ])
             ->add('new_password', PasswordType::class, [
                 'mapped' => false,
                 'required' => true,
@@ -52,14 +48,5 @@ class ChangePasswordType extends AbstractType
                 ],
             ])
         ;
-    }
-
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setDefaults([
-            'old_password' => true,
-        ]);
-
-        $resolver->setAllowedTypes('old_password', 'bool');
     }
 }
