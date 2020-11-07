@@ -47,13 +47,13 @@ class ChangePasswordHelper
         $this->translator = $translator;
     }
 
-    public function process(UserInterface $user): Response
+    public function process(UserInterface $user, bool $withOldPassword = true): Response
     {
-        $form = $this->helper->processForm(new FormConfig(ChangePasswordType::class), []);
-        $oldPassword = $form->get('old_password')->getData();
+        $form = $this->helper->processForm(new FormConfig(ChangePasswordType::class, ['old_password' => $withOldPassword]), []);
+        $oldPassword = $withOldPassword ? $form->get('old_password')->getData() : null;
         $newPassword = $form->get('new_password')->getData();
 
-        if ($form->isValid() && !$this->passwordEncoder->isPasswordValid($user, $oldPassword)) {
+        if ($form->isValid() && $withOldPassword && !$this->passwordEncoder->isPasswordValid($user, $oldPassword)) {
             $form->get('old_password')->addError(new FormError(
                 $this->translator->trans('This value is not valid.', [], 'validators')
             ));

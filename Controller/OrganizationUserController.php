@@ -136,7 +136,7 @@ class OrganizationUserController
             throw $helper->createNotFoundException();
         }
 
-        return $changePasswordHelper->process($user);
+        return $changePasswordHelper->process($user, false);
     }
 
     /**
