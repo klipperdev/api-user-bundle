@@ -17,12 +17,17 @@ use Klipper\Bundle\ApiBundle\Controller\Action\Listener\FormPostSubmitListenerIn
 use Klipper\Bundle\ApiBundle\Controller\ControllerHelper;
 use Klipper\Bundle\ApiBundle\Exception\InvalidArgumentException;
 use Klipper\Bundle\ApiUserBundle\Form\Type\CreateOrganizationUserType;
+use Klipper\Bundle\ApiUserBundle\Form\Type\InvitationRequestType;
 use Klipper\Bundle\ApiUserBundle\User\ChangePasswordHelper;
 use Klipper\Component\Content\ContentManagerInterface;
 use Klipper\Component\Metadata\MetadataManagerInterface;
+use Klipper\Component\Model\Traits\EnableInterface;
+use Klipper\Component\Resource\Handler\FormConfig;
 use Klipper\Component\Security\Model\OrganizationUserInterface;
 use Klipper\Component\Security\Model\UserInterface;
+use Klipper\Component\Security\Organizational\OrganizationalContextInterface;
 use Klipper\Component\SecurityOauth\Scope\ScopeVote;
+use Klipper\Component\Translation\ExceptionTranslatorInterface;
 use Klipper\Component\User\Model\Traits\ProfileableInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -36,6 +41,88 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
  */
 class OrganizationUserController
 {
+    /**
+     * Invite an existing user for the organization.
+     *
+     * @Route("/organization_users/invite", methods={"POST"})
+     *
+     * @Security("is_granted('perm:create', 'App\\Entity\\OrganizationUser')")
+     *
+     * @throws
+     */
+    public function invite(
+        ControllerHelper $helper,
+        ExceptionTranslatorInterface $exceptionTranslator,
+        OrganizationalContextInterface $orgContext
+    ): Response {
+        if (class_exists(ScopeVote::class)) {
+            $helper->denyAccessUnlessGranted(new ScopeVote('meta/organization_user'));
+        }
+
+        $orgUserDomain = $helper->getDomain(OrganizationUserInterface::class);
+        $userDomain = $helper->getDomain(UserInterface::class);
+        $currentOrg = $orgContext->getCurrentOrganization();
+
+        if (null === $currentOrg) {
+            throw $helper->createNotFoundException();
+        }
+
+        try {
+            $config = new FormConfig(InvitationRequestType::class);
+            $form = $helper->processForm($config, []);
+        } catch (\Exception $e) {
+            throw $helper->createBadRequestException($exceptionTranslator->transDomainThrowable($e), $e);
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $email = $form->get('email')->getData();
+            $orgUser = $orgUserDomain->getRepository()->createQueryBuilder('ou')
+                ->join('ou.user', 'u')
+                ->where('u.email = :email OR u.username = :email')
+                ->setParameter('email', $email)
+                ->getQuery()
+                ->getOneOrNullResult()
+            ;
+
+            if (null !== $orgUser) {
+                return $helper->handleView($helper->createView($orgUser));
+            }
+
+            $user = $userDomain->getRepository()->createQueryBuilder('u')
+                ->where('u.email = :email OR u.username = :email')
+                ->setParameter('email', $email)
+                ->getQuery()
+                ->getOneOrNullResult()
+            ;
+
+            if (null !== $user) {
+                /** @var OrganizationUserInterface $orgUser */
+                $orgUser = $orgUserDomain->newInstance();
+                $orgUser->setOrganization($currentOrg);
+                $orgUser->setUser($user);
+
+                if ($orgUser instanceof EnableInterface) {
+                    $orgUser->setEnabled(true);
+                }
+
+                $res = $orgUserDomain->create($orgUser);
+
+                if (!$res->isValid()) {
+                    return $helper->handleView($helper->createView(
+                        $helper->mergeAllFormErrors($res),
+                        Response::HTTP_BAD_REQUEST
+                    ));
+                }
+
+                return $helper->handleView($helper->createView($orgUser));
+            }
+
+            throw $helper->createNotFoundException();
+        }
+
+        return $helper->handleView($helper->createViewFormErrors($form));
+    }
+
     /**
      * Create a user for the organization.
      *
