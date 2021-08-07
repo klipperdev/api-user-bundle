@@ -134,7 +134,7 @@ class UserController
         return $contentManager->downloadImage(
             'user_image',
             $user->getImagePath(),
-            $user->getFullName() ?? $user->getUsername()
+            $user->getFullName() ?? $user->getUserIdentifier()
         );
     }
 
