@@ -33,8 +33,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 /**
  * @author François Pluchino <francois.pluchino@klipper.dev>
@@ -132,7 +133,7 @@ class OrganizationUserController
      */
     public function create(
         ControllerHelper $helper,
-        UserPasswordEncoderInterface $passwordEncoder
+        UserPasswordHasherInterface $passwordHasher
     ): Response {
         if (class_exists(ScopeVote::class)) {
             $helper->denyAccessUnlessGranted(new ScopeVote('meta/organization_user'));
@@ -142,14 +143,16 @@ class OrganizationUserController
             Create::build(
                 CreateOrganizationUserType::class,
                 OrganizationUserInterface::class
-            )->addListener(static function (PostSubmitEvent $event) use ($passwordEncoder): void {
+            )->addListener(static function (PostSubmitEvent $event) use ($passwordHasher): void {
                 /** @var OrganizationUserInterface $data */
                 $data = $event->getData();
+                /** @var UserInterface&PasswordAuthenticatedUserInterface $user */
+                $user = $data->getUser();
 
                 if ($event->getForm()->isValid()) {
-                    $data->getUser()->setPassword(
-                        $passwordEncoder->encodePassword(
-                            $data->getUser(),
+                    $user->setPassword(
+                        $passwordHasher->hashPassword(
+                            $user,
                             $event->getForm()->get('user')->get('password')->getData()
                         )
                     );
