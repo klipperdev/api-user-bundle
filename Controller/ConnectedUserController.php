@@ -51,8 +51,8 @@ class ConnectedUserController
         $repo = $domainManager->get(UserInterface::class)->getRepository();
         $qb = $repo->createQueryBuilder('u')
             ->select('u')
-            ->orderBy('p.firstName', 'ASC')
-            ->addOrderBy('p.lastName', 'ASC')
+            ->orderBy('u.firstName', 'ASC')
+            ->addOrderBy('u.lastName', 'ASC')
             ->addOrderBy('u.username', 'ASC')
         ;
 
