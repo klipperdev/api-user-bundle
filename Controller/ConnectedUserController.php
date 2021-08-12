@@ -47,7 +47,7 @@ class ConnectedUserController
         }
 
         $user = $this->getCurrentUser($helper, $tokenStorage);
-        SqlFilterUtil::disableFilters($em, ['userable', 'organization']);
+        SqlFilterUtil::disableFilters($em, ['userable', 'organization', 'organization_user']);
         $repo = $domainManager->get(UserInterface::class)->getRepository();
         $qb = $repo->createQueryBuilder('u')
             ->select('u')
@@ -122,7 +122,7 @@ class ConnectedUserController
         }
 
         $user = $this->getCurrentUser($helper, $tokenStorage);
-        SqlFilterUtil::disableFilters($em, ['userable', 'organization']);
+        SqlFilterUtil::disableFilters($em, ['userable', 'organization', 'organization_user']);
         $repo = $domainManager->get(UserInterface::class)->getRepository();
         $qb = $repo->createQueryBuilder('u')
             ->select('u')
