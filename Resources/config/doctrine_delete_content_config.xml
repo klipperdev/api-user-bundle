@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="klipper_api_user.doctrine_delete_content_config.user_image"
+                 class="Klipper\Component\Content\Doctrine\DeleteContentConfig">
+            <tag name="klipper_content.doctrine_delete_config" />
+            <argument>user_image</argument>
+            <argument>Klipper\Component\User\Model\Traits\ProfileableInterface</argument>
+            <argument>getImagePath</argument>
+        </service>
+
+        <service id="klipper_api_user.doctrine_delete_content_config.organization_image"
+                 class="Klipper\Component\Content\Doctrine\DeleteContentConfig">
+            <tag name="klipper_content.doctrine_delete_config" />
+            <argument>organization_image</argument>
+            <argument>Klipper\Component\Security\Model\OrganizationInterface</argument>
+            <argument>getImagePath</argument>
+        </service>
+    </services>
+</container>

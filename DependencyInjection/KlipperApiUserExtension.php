@@ -35,6 +35,7 @@ class KlipperApiUserExtension extends Extension
         $loader->load('change_password_helper.xml');
         $loader->load('upload_listener.xml');
         $loader->load('form.xml');
+        $loader->load('doctrine_delete_content_config.xml');
 
         ControllerDefinitionUtil::set($container, UserController::class);
         ControllerDefinitionUtil::set($container, OrganizationController::class);
