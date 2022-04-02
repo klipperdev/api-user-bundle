@@ -49,7 +49,7 @@ class ChangePasswordHelper
     }
 
     /**
-     * @param UserInterface&PasswordAuthenticatedUserInterface $user
+     * @param PasswordAuthenticatedUserInterface|UserInterface $user
      */
     public function process(UserInterface $user, bool $withOldPassword = true): Response
     {

@@ -146,7 +146,8 @@ class OrganizationUserController
             )->addListener(static function (PostSubmitEvent $event) use ($passwordHasher): void {
                 /** @var OrganizationUserInterface $data */
                 $data = $event->getData();
-                /** @var UserInterface&PasswordAuthenticatedUserInterface $user */
+
+                /** @var PasswordAuthenticatedUserInterface|UserInterface $user */
                 $user = $data->getUser();
 
                 if ($event->getForm()->isValid()) {
