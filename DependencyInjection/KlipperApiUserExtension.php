@@ -15,6 +15,7 @@ use Klipper\Bundle\ApiBundle\Util\ControllerDefinitionUtil;
 use Klipper\Bundle\ApiUserBundle\Controller\ConnectedUserController;
 use Klipper\Bundle\ApiUserBundle\Controller\OrganizationController;
 use Klipper\Bundle\ApiUserBundle\Controller\OrganizationUserController;
+use Klipper\Bundle\ApiUserBundle\Controller\PublicUserController;
 use Klipper\Bundle\ApiUserBundle\Controller\UserController;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -41,5 +42,6 @@ class KlipperApiUserExtension extends Extension
         ControllerDefinitionUtil::set($container, OrganizationController::class);
         ControllerDefinitionUtil::set($container, OrganizationUserController::class);
         ControllerDefinitionUtil::set($container, ConnectedUserController::class);
+        ControllerDefinitionUtil::set($container, PublicUserController::class);
     }
 }
