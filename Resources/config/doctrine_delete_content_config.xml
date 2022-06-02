@@ -10,7 +10,7 @@
             <tag name="klipper_content.doctrine_delete_config" />
             <argument>user_image</argument>
             <argument>Klipper\Component\User\Model\Traits\ProfileableInterface</argument>
-            <argument>getImagePath</argument>
+            <argument>imagePath</argument>
         </service>
 
         <service id="klipper_api_user.doctrine_delete_content_config.organization_image"
@@ -18,7 +18,7 @@
             <tag name="klipper_content.doctrine_delete_config" />
             <argument>organization_image</argument>
             <argument>Klipper\Component\Security\Model\OrganizationInterface</argument>
-            <argument>getImagePath</argument>
+            <argument>imagePath</argument>
         </service>
     </services>
 </container>
