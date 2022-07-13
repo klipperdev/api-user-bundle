@@ -15,16 +15,22 @@ use Klipper\Bundle\ApiBundle\Action\Delete;
 use Klipper\Bundle\ApiBundle\Action\Update;
 use Klipper\Bundle\ApiBundle\Controller\ControllerHelper;
 use Klipper\Bundle\ApiBundle\Exception\InvalidArgumentException;
+use Klipper\Bundle\ApiBundle\View\Transformer\GetViewTransformerInterface;
 use Klipper\Bundle\ApiBundle\ViewGroups;
 use Klipper\Component\Content\ContentManagerInterface;
 use Klipper\Component\Metadata\MetadataManagerInterface;
+use Klipper\Component\Security\Identity\GroupSecurityIdentity;
+use Klipper\Component\Security\Identity\RoleSecurityIdentity;
+use Klipper\Component\Security\Identity\SecurityIdentityManagerInterface;
 use Klipper\Component\Security\Model\OrganizationInterface;
 use Klipper\Component\Security\Organizational\OrganizationalContextInterface;
+use Klipper\Component\Security\Organizational\OrganizationalUtil;
 use Klipper\Component\SecurityOauth\Scope\ScopeVote;
 use Klipper\Contracts\Model\ImagePathInterface;
 use Klipper\Contracts\Model\LabelableInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * @author François Pluchino <francois.pluchino@klipper.dev>
@@ -38,13 +44,30 @@ class OrganizationController
      */
     public function viewOrganization(
         ControllerHelper $helper,
-        OrganizationalContextInterface $orgContext
+        OrganizationalContextInterface $orgContext,
+        SecurityIdentityManagerInterface $sim,
+        TokenStorageInterface $tokenStorage
     ): Response {
         if (class_exists(ScopeVote::class)) {
             $helper->denyAccessUnlessGranted(new ScopeVote(['meta/organization', 'meta/organization.readonly'], false));
         }
 
         $helper->createView()->getContext()->addGroup(ViewGroups::CURRENT_USER);
+        $helper->addViewTransformer(static function (object $object) use ($sim, $tokenStorage) {
+            $identities = [];
+
+            foreach ($sim->getSecurityIdentities($tokenStorage->getToken()) as $identity) {
+                if ($identity instanceof RoleSecurityIdentity && 0 !== strpos($identity->getIdentifier(), 'IS_')) {
+                    $identities[] = OrganizationalUtil::format($identity->getIdentifier());
+                } elseif ($identity instanceof GroupSecurityIdentity) {
+                    $identities[] = 'GROUP_'.OrganizationalUtil::format($identity->getIdentifier());
+                }
+            }
+
+            $object->{'@user_identities'} = $identities;
+
+            return $object;
+        }, GetViewTransformerInterface::class);
 
         return $helper->view($this->getCurrentOrganization($helper, $orgContext));
     }
