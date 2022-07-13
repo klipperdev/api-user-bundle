@@ -14,11 +14,16 @@ namespace Klipper\Bundle\ApiUserBundle\Controller;
 use Klipper\Bundle\ApiBundle\Action\Update;
 use Klipper\Bundle\ApiBundle\Controller\ControllerHelper;
 use Klipper\Bundle\ApiBundle\Exception\InvalidArgumentException;
+use Klipper\Bundle\ApiBundle\View\Transformer\GetViewTransformerInterface;
 use Klipper\Bundle\ApiBundle\ViewGroups;
 use Klipper\Bundle\ApiUserBundle\User\ChangePasswordHelper;
 use Klipper\Component\Content\ContentManagerInterface;
 use Klipper\Component\Metadata\MetadataManagerInterface;
+use Klipper\Component\Security\Identity\GroupSecurityIdentity;
+use Klipper\Component\Security\Identity\RoleSecurityIdentity;
+use Klipper\Component\Security\Identity\SecurityIdentityManagerInterface;
 use Klipper\Component\Security\Model\UserInterface;
+use Klipper\Component\Security\Organizational\OrganizationalUtil;
 use Klipper\Component\SecurityOauth\Scope\ScopeVote;
 use Klipper\Component\User\Model\Traits\ProfileableInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,6 +42,7 @@ class UserController
      */
     public function viewUser(
         ControllerHelper $helper,
+        SecurityIdentityManagerInterface $sim,
         TokenStorageInterface $tokenStorage
     ): Response {
         if (class_exists(ScopeVote::class)) {
@@ -44,6 +50,21 @@ class UserController
         }
 
         $helper->createView()->getContext()->addGroup(ViewGroups::CURRENT_USER);
+        $helper->addViewTransformer(static function (object $object) use ($sim, $tokenStorage) {
+            $identities = [];
+
+            foreach ($sim->getSecurityIdentities($tokenStorage->getToken()) as $identity) {
+                if ($identity instanceof RoleSecurityIdentity && 0 !== strpos($identity->getIdentifier(), 'IS_')) {
+                    $identities[] = OrganizationalUtil::format($identity->getIdentifier());
+                } elseif ($identity instanceof GroupSecurityIdentity) {
+                    $identities[] = 'GROUP_'.OrganizationalUtil::format($identity->getIdentifier());
+                }
+            }
+
+            $object->{'@identities'} = $identities;
+
+            return $object;
+        }, GetViewTransformerInterface::class);
 
         return $helper->view($this->getCurrentUser($helper, $tokenStorage));
     }
