@@ -54,7 +54,7 @@ class UserController
             $identities = [];
 
             foreach ($sim->getSecurityIdentities($tokenStorage->getToken()) as $identity) {
-                if ($identity instanceof RoleSecurityIdentity && 0 !== strpos($identity->getIdentifier(), 'IS_')) {
+                if ($identity instanceof RoleSecurityIdentity && $identity->isRole()) {
                     $identities[] = OrganizationalUtil::format($identity->getIdentifier());
                 } elseif ($identity instanceof GroupSecurityIdentity) {
                     $identities[] = 'GROUP_'.OrganizationalUtil::format($identity->getIdentifier());
