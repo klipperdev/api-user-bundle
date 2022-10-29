@@ -105,10 +105,10 @@ class ConnectedUserController
      *
      * @param int|string $id
      *
+     * @return ProfileableInterface|UserInterface
+     *
      * @throws NotFoundHttpException
      * @throws AccessDeniedException
-     *
-     * @return ProfileableInterface|UserInterface
      */
     public function getSelectedUser(
         ControllerHelper $helper,

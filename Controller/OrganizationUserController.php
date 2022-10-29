@@ -46,7 +46,6 @@ class OrganizationUserController
      * Invite an existing user for the organization.
      *
      * @Route("/organization_users/invite", methods={"POST"})
-     *
      * @Security("is_granted('perm:create', 'App\\Entity\\OrganizationUser')")
      *
      * @throws
@@ -128,7 +127,6 @@ class OrganizationUserController
      * Create a user for the organization.
      *
      * @Route("/organization_users/create", methods={"POST"})
-     *
      * @Security("is_granted('perm:create', 'App\\Entity\\OrganizationUser')")
      */
     public function create(
@@ -170,9 +168,7 @@ class OrganizationUserController
      *     class="App:OrganizationUser",
      *     expr="repository.findOrganizationUserById(id)"
      * )
-     *
      * @Route("/organization_users/{id}/user", methods={"PATCH"})
-     *
      * @Security("is_granted('perm:update', id)")
      */
     public function updateUser(
@@ -207,9 +203,7 @@ class OrganizationUserController
      *     class="App:OrganizationUser",
      *     expr="repository.findOrganizationUserById(id)"
      * )
-     *
      * @Route("/organization_users/{id}/change-password", methods={"PATCH"})
-     *
      * @Security("is_granted('perm:update', id)")
      */
     public function changePassword(
@@ -238,9 +232,7 @@ class OrganizationUserController
      *     class="App:OrganizationUser",
      *     expr="repository.findOrganizationUserById(id)"
      * )
-     *
      * @Route("/organization_users/{id}/user/upload", methods={"POST"})
-     *
      * @Security("is_granted('perm:update', id)")
      */
     public function uploadImage(
